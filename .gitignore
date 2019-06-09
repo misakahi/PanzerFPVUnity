@@ -64,6 +64,7 @@ crashlytics-build.properties
 # Assets to ignore
 [Aa]ssets/Plugins/*
 [Aa]ssets/Oculus/*
+[Aa]ssets/MJStreamingPlayer/*
 
 # VSCode
 .vscode

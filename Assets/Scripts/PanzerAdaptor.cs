@@ -18,19 +18,13 @@ class PanzerAdaptor
         Channel channel = new Channel(Host + ":" + Port, ChannelCredentials.Insecure);
         var client = new Panzer.Panzer.PanzerClient(channel);
 
-        // drive - right stick
-        client.Drive(Vector2DriveRequest(stickR));
-
-        // turret - left stick
-        client.MoveTurret(new MoveTurretRequest {
-            Rotation = stickL.x,
-            Updown = stickL.y,
-        });
+        client.Drive(Stick2DriveRequest(stickL));
+        client.MoveTurret(Stick2MoveTurretRequset(stickR));
         
         channel.ShutdownAsync().Wait();
     }
 
-    static public DriveRequest Vector2DriveRequest(Vector2 stick) {
+    static public DriveRequest Stick2DriveRequest(Vector2 stick) {
         float leftLevel = 0;
         float rightLevel = 0;
 
@@ -64,6 +58,13 @@ class PanzerAdaptor
         return new DriveRequest {
             LeftLevel = leftLevel * s,
             RightLevel = rightLevel * s,
+        };
+    }
+
+    static public MoveTurretRequest Stick2MoveTurretRequset(Vector2 stick) {
+        return new MoveTurretRequest {
+            Rotation = stick.x,
+            Updown = Math.Abs(stick.y) < 0.2 ? 0 : stick.y,
         };
     }
 }

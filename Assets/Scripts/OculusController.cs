@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class OculusControllerTest : MonoBehaviour
+public class OculusController : MonoBehaviour
 {
     PanzerAdaptor PanzerAdaptor;
 
@@ -15,14 +15,6 @@ public class OculusControllerTest : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("update");
-        if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger))
-        {
-            Debug.Log("Primary Index Trigger");   
-        }
-        // Vector2 stickL = OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick);
-        // Vector2 stickR = OVRInput.Get(OVRInput.Axis2D.SecondaryThumbstick);
-
         Vector2 stickL = OVRInput.Get(OVRInput.RawAxis2D.LThumbstick);
         Vector2 stickR = OVRInput.Get(OVRInput.RawAxis2D.RThumbstick);
 
