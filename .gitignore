@@ -61,3 +61,8 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+# Ignore Plugins
+[Aa]ssets/Plugins/*
+
+# VSCode
+.vscode
