@@ -21,9 +21,12 @@ public class OculusController : MonoBehaviour
     public bool showInfo = false;
 
     float leftLevel = 0f;
+    float leftLevelPref = 0f;
     float rightLevel = 0f;
+    float rightLevelPrev = 0f;
 
     public int SendCommandInterval = 100;  // milliseconds
+    public float minLevelDelta = 0.05f;
 
     RunThrottle SendCommandThrottle;
 
@@ -56,7 +59,9 @@ public class OculusController : MonoBehaviour
         if (OVRInput.Get(OVRInput.RawButton.LIndexTrigger))
         {
             Vector3 delta = GetControllerPos(LR.LEFT) - this.leftPosZero;
-            this.leftLevel = delta.z * deltaLevelRatio;
+            float level = delta.z * deltaLevelRatio;
+            if (Mathf.Abs(level - this.leftLevel) >= minLevelDelta)
+                this.leftLevel = level;
         }
         if (OVRInput.GetDown(OVRInput.RawButton.RIndexTrigger))
         {
@@ -65,7 +70,9 @@ public class OculusController : MonoBehaviour
         if (OVRInput.Get(OVRInput.RawButton.RIndexTrigger))
         {
             Vector3 delta = GetControllerPos(LR.RIGHT) - this.rightPosZero;
-            rightLevel = delta.z * deltaLevelRatio;
+            float level = delta.z * deltaLevelRatio;
+            if (Mathf.Abs(level - this.rightLevel) >= minLevelDelta)
+                this.rightLevel = level;
         }
         if (leftLevel != 0f || rightLevel != 0f || stickR != Vector2.zero)
         {
@@ -77,22 +84,10 @@ public class OculusController : MonoBehaviour
                 }
                 catch (RpcException e)
                 {
-                    Debug.LogException(e);
+                    // Debug.LogException(e);
                 }
             });
         }
-
-        SendCommandThrottle.Run(() =>
-        {
-            try
-            {
-                PanzerCommandSender.RemoteControl(0.1f, 0.2f, 0, 0);
-            }
-            catch (RpcException e)
-            {
-                // Debug.LogException(e);
-            }
-        });
     }
 
     void OnGUI()
