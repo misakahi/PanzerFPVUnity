@@ -6,7 +6,7 @@ using UnityEngine;
 public class Connection : MonoBehaviour
 {
     public string ServerHost = "localhost";
-    public int ServerPort = 9999;
+    public int ServerPort = 50051;
     public string CameraHost = "localhost";
     public int CameraPort = 8080;
 

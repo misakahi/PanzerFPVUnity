@@ -10,6 +10,7 @@ public class RunThrottle
 {
     int Interval { get; set; }
     private Stopwatch Stopwatch = new Stopwatch();
+    private bool IsLocked = false;
 
     public RunThrottle(int interval /* milliseconds */)
     {
@@ -20,10 +21,12 @@ public class RunThrottle
     public async void Run(Action action)
     {
         var elasped = Stopwatch.Elapsed;
-        if (elasped.Milliseconds > this.Interval)
+        if (!IsLocked && elasped.Milliseconds > this.Interval)
         {
+            IsLocked = true;
             await Task.Run(() => action.Invoke());
             Stopwatch.Restart();
+            IsLocked = false;
         }
     }
 }

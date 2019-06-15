@@ -29,7 +29,7 @@ class PanzerCommandSender
         return instance;
     }
 
-    private PanzerCommandSender(string host = "localhost", int port = 9999)
+    private PanzerCommandSender(string host = "localhost", int port = 50051)
     {
         this.Host = host;
         this.Port = port;
@@ -121,31 +121,19 @@ class PanzerCommandSender
         };
     }
 
-    public static bool PingPong()
+    public static String PingPong(String ping="")
     {
         var instance = getInstance();
         var channel = instance.getChannel();
         var client = new Panzer.Panzer.PanzerClient(channel);
 
-        bool res = false;
+        var Pong = client.SendPing(new Panzer.Ping { Ping_ = ping });
 
-        try
-        {
-            var Pong = client.SendPing(new Panzer.Ping { });
-            res = true;
-        }
-        catch (RpcException ex)
-        {
-            res = false;
-        }
-        finally
-        {
-            channel.ShutdownAsync().Wait();
-        }
-        return res;
+        channel.ShutdownAsync().Wait();
+        return Pong.Pong_;
     }
 
-    public static async Task<bool> PingPongAsync()
+    public static async Task<String> PingPongAsync()
     {
         var result = await Task.Run(() => PingPong());
         return result;
