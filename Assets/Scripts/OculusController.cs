@@ -15,15 +15,13 @@ public class OculusController : MonoBehaviour
     PanzerCommandSender PanzerAdaptor;
 
     Vector3 leftPosZero;
-    Vector3 rightPosZero;
+    Vector3 rightPosZero; 
 
     public float deltaLevelRatio = 3f;
     public bool showInfo = false;
 
     float leftLevel = 0f;
-    float leftLevelPref = 0f;
     float rightLevel = 0f;
-    float rightLevelPrev = 0f;
 
     public int SendCommandInterval = 100;  // milliseconds
     public float minLevelDelta = 0.05f;
@@ -56,24 +54,34 @@ public class OculusController : MonoBehaviour
         {
             this.leftPosZero = GetControllerPos(LR.LEFT);
         }
-        if (OVRInput.Get(OVRInput.RawButton.LIndexTrigger))
+        else if (OVRInput.Get(OVRInput.RawButton.LIndexTrigger))
         {
             Vector3 delta = GetControllerPos(LR.LEFT) - this.leftPosZero;
             float level = delta.z * deltaLevelRatio;
             if (Mathf.Abs(level - this.leftLevel) >= minLevelDelta)
                 this.leftLevel = level;
         }
+        else if (OVRInput.GetUp(OVRInput.RawButton.LIndexTrigger)) {
+            this.leftPosZero = Vector3.zero;
+            this.leftLevel = 0f;
+        }
+
         if (OVRInput.GetDown(OVRInput.RawButton.RIndexTrigger))
         {
             this.rightPosZero = GetControllerPos(LR.RIGHT);
         }
-        if (OVRInput.Get(OVRInput.RawButton.RIndexTrigger))
+        else if (OVRInput.Get(OVRInput.RawButton.RIndexTrigger))
         {
             Vector3 delta = GetControllerPos(LR.RIGHT) - this.rightPosZero;
             float level = delta.z * deltaLevelRatio;
             if (Mathf.Abs(level - this.rightLevel) >= minLevelDelta)
                 this.rightLevel = level;
         }
+        else if (OVRInput.GetUp(OVRInput.RawButton.RIndexTrigger)) {
+            this.rightPosZero = Vector3.zero;
+            this.rightLevel = 0f;
+        }
+
         if (leftLevel != 0f || rightLevel != 0f || stickR != Vector2.zero)
         {
             SendCommandThrottle.Run(() =>
@@ -103,5 +111,9 @@ public class OculusController : MonoBehaviour
     {
         var controller = leftRight == LR.LEFT ? OVRInput.Controller.LTouch : OVRInput.Controller.RTouch;
         return OVRInput.GetLocalControllerPosition(controller);
+    }
+
+    public float Level() {
+        return Mathf.Max(Mathf.Abs(leftLevel), Mathf.Abs(rightLevel));
     }
 }
