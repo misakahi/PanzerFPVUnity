@@ -96,15 +96,8 @@ public class OculusController : MonoBehaviour
                 }
             });
         }
-    }
 
-    void OnGUI()
-    {
-        if (showInfo)
-        {
-            GUI.TextField(new Rect(0, 220, 180, 50), "Left Level: " + this.leftLevel, style);
-            GUI.TextField(new Rect(0, 270, 180, 50), "Right Level: " + this.rightLevel, style);
-        }
+        EventBus.Instance.NotifyController(this.leftLevel, this.rightLevel);
     }
 
     Vector3 GetControllerPos(LR leftRight)

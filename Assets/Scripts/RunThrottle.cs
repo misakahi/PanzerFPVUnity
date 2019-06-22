@@ -9,24 +9,24 @@ using UnityEngine;
 public class RunThrottle
 {
     int Interval { get; set; }
-    private Stopwatch Stopwatch = new Stopwatch();
-    private bool IsLocked = false;
+    private Stopwatch stopwatch = new Stopwatch();
+    private bool isLocked = false;
 
     public RunThrottle(int interval /* milliseconds */)
     {
         this.Interval = interval;
-        this.Stopwatch.Start();
+        this.stopwatch.Start();
     }
 
     public async void Run(Action action)
     {
-        var elasped = Stopwatch.Elapsed;
-        if (!IsLocked && elasped.Milliseconds > this.Interval)
+        var elasped = stopwatch.Elapsed;
+        if (!isLocked && elasped.Milliseconds > this.Interval)
         {
-            IsLocked = true;
+            isLocked = true;
             await Task.Run(() => action.Invoke());
-            Stopwatch.Restart();
-            IsLocked = false;
+            stopwatch.Restart();
+            isLocked = false;
         }
     }
 }

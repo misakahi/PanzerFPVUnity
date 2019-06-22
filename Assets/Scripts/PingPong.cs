@@ -24,8 +24,11 @@ public class PingPong : MonoBehaviour
                 PanzerCommandSender.PingPong();
                 this.IsConnected = true;
             } catch (System.Exception e) {
-                Debug.LogException(e);
+                // Debug.LogException(e, this);
                 this.IsConnected = false;
+            }
+            finally {
+                EventBus.Instance.NotifyPingPong(this.IsConnected);
             }
             Debug.Log("ping pong throttle: " + this.IsConnected);
         });
