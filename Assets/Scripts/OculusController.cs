@@ -18,13 +18,13 @@ public class OculusController : MonoBehaviour
     Vector3 rightPosZero; 
 
     public float deltaLevelRatio = 3f;
-    public bool showInfo = false;
 
     float leftLevel = 0f;
     float rightLevel = 0f;
 
     public int SendCommandInterval = 100;  // milliseconds
     public float minLevelDelta = 0.05f;
+    public bool enableVibration = false;
 
     RunThrottle SendCommandThrottle;
 
@@ -95,8 +95,12 @@ public class OculusController : MonoBehaviour
                     // Debug.LogException(e);
                 }
             });
+
         }
 
+        if (this.enableVibration) {
+            Vibrate();
+        }
         EventBus.Instance.NotifyController(this.leftLevel, this.rightLevel);
     }
 
@@ -108,5 +112,17 @@ public class OculusController : MonoBehaviour
 
     public float Level() {
         return Mathf.Max(Mathf.Abs(leftLevel), Mathf.Abs(rightLevel));
+    }
+
+    void Vibrate() {
+        if (this.rightLevel != 0f)
+            OVRInput.SetControllerVibration(1, Mathf.Min(1f, Mathf.Abs(this.rightLevel)), OVRInput.Controller.RTouch);
+        else 
+            OVRInput.SetControllerVibration(1, 0, OVRInput.Controller.RTouch);
+
+        if (this.leftLevel != 0f)
+            OVRInput.SetControllerVibration(1, Mathf.Min(1f, Mathf.Abs(this.leftLevel)), OVRInput.Controller.LTouch);
+        else
+            OVRInput.SetControllerVibration(1, 0, OVRInput.Controller.LTouch);
     }
 }

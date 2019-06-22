@@ -321,6 +321,7 @@ MonoBehaviour:
   showInfo: 1
   SendCommandInterval: 100
   minLevelDelta: 0.05
+  enableVibration: 1
 --- !u!4 &437370272
 Transform:
   m_ObjectHideFlags: 0
