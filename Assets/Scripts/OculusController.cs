@@ -6,35 +6,27 @@ using Grpc.Core;
 using UnityEngine;
 
 
-enum LR {
-    LEFT, RIGHT
-}
-
 public class OculusController : MonoBehaviour
 {
     PanzerCommandSender PanzerAdaptor;
 
-    Vector3 leftPosZero;
-    Vector3 rightPosZero; 
-
-    public float deltaLevelRatio = 3f;
-
-    float leftLevel = 0f;
-    float rightLevel = 0f;
+    // parameter for DriveInputProcessor
+    public float DistToLevel = 3f;
+    public float MinLevelDelta = 0.05f;
 
     public int SendCommandInterval = 100;  // milliseconds
-    public float minLevelDelta = 0.05f;
-    public bool enableVibration = false;
+    public bool EnableVibration = false;
 
     RunThrottle SendCommandThrottle;
-
-    private GUIStyle style = new GUIStyle();
+    DriveInputProcessor leftInputProcessor;
+    DriveInputProcessor rightInputProcessor;
 
     // Start is called before the first frame update
     void Start()
     {
-        this.style.fontSize = 30;
         this.SendCommandThrottle = new RunThrottle(SendCommandInterval);
+        this.leftInputProcessor  = new DriveInputProcessor(Hand.LEFT, MinLevelDelta, DistToLevel);
+        this.rightInputProcessor = new DriveInputProcessor(Hand.RIGHT, MinLevelDelta, DistToLevel);
     }
 
     // Update is called once per frame
@@ -43,45 +35,10 @@ public class OculusController : MonoBehaviour
         Vector2 stickL = OVRInput.Get(OVRInput.RawAxis2D.LThumbstick);
         Vector2 stickR = OVRInput.Get(OVRInput.RawAxis2D.RThumbstick);
 
-        // left input
-        if (OVRInput.GetDown(OVRInput.RawButton.LIndexTrigger))
-        {
-            this.leftPosZero = GetControllerPos(LR.LEFT);
-        }
-        else if (OVRInput.Get(OVRInput.RawButton.LIndexTrigger))
-        {
-            Vector3 delta = GetControllerPos(LR.LEFT) - this.leftPosZero;
-            float level = delta.z * deltaLevelRatio;
-            if (Mathf.Abs(level - this.leftLevel) >= minLevelDelta)
-                this.leftLevel = level;
-        }
-        else if (OVRInput.GetUp(OVRInput.RawButton.LIndexTrigger)) {
-            this.leftPosZero = Vector3.zero;
-            this.leftLevel = 0f;
-        }
+        float leftLevel  = leftInputProcessor.GetLevel();
+        float rightLevel = rightInputProcessor.GetLevel();
 
-        // right input
-        if (OVRInput.GetDown(OVRInput.RawButton.RIndexTrigger))
-        {
-            this.rightPosZero = GetControllerPos(LR.RIGHT);
-        }
-        else if (OVRInput.Get(OVRInput.RawButton.RIndexTrigger))
-        {
-            Vector3 delta = GetControllerPos(LR.RIGHT) - this.rightPosZero;
-            float level = delta.z * deltaLevelRatio;
-            if (Mathf.Abs(level - this.rightLevel) >= minLevelDelta)
-                this.rightLevel = level;
-        }
-        else if (OVRInput.GetUp(OVRInput.RawButton.RIndexTrigger)) {
-            this.rightPosZero = Vector3.zero;
-            this.rightLevel = 0f;
-        }
-
-        // level has to be in [-1, 1]
-        this.leftLevel = Mathf.Clamp(this.leftLevel, -1, 1);
-        this.rightLevel = Mathf.Clamp(this.rightLevel, -1, 1);
-
-        ControllerInput input = new ControllerInput(this.leftLevel, this.rightLevel, stickR.x, stickR.y);
+        ControllerInput input = new ControllerInput(leftLevel, rightLevel, stickR.x, stickR.y);
 
         if (!input.IsZero())
         {
@@ -98,30 +55,20 @@ public class OculusController : MonoBehaviour
             });
         }
 
-        if (this.enableVibration) {
-            Vibrate();
+        if (this.EnableVibration) {
+            Vibrate(leftLevel, rightLevel);
         }
 
         EventBus.Instance.NotifyController(input);
     }
 
-    Vector3 GetControllerPos(LR leftRight)
-    {
-        var controller = leftRight == LR.LEFT ? OVRInput.Controller.LTouch : OVRInput.Controller.RTouch;
-        return OVRInput.GetLocalControllerPosition(controller);
-    }
-
-    public float Level() {
-        return Mathf.Max(Mathf.Abs(leftLevel), Mathf.Abs(rightLevel));
-    }
-
     void Vibrate(float level, OVRInput.Controller controller) {
-        float absLevel = Mathf.Min(1, Mathf.Abs(level));
-        OVRInput.SetControllerVibration(1, absLevel, controller);
+        float amp = Mathf.Min(1, Mathf.Abs(level));
+        OVRInput.SetControllerVibration(1, amp, controller);
     }
 
-    void Vibrate() {
-        Vibrate(this.leftLevel, OVRInput.Controller.LTouch);
-        Vibrate(this.rightLevel, OVRInput.Controller.RTouch);
+    void Vibrate(float leftLevel, float rightLevel) {
+        Vibrate(leftLevel, OVRInput.Controller.LTouch);
+        Vibrate(rightLevel, OVRInput.Controller.RTouch);
     }
 }
