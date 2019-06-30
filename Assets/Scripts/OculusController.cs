@@ -50,6 +50,7 @@ public class OculusController : MonoBehaviour
         //     PanzerAdaptor.remoteControll(stickL, stickR);
         // }
 
+        // left input
         if (OVRInput.GetDown(OVRInput.RawButton.LIndexTrigger))
         {
             this.leftPosZero = GetControllerPos(LR.LEFT);
@@ -66,6 +67,7 @@ public class OculusController : MonoBehaviour
             this.leftLevel = 0f;
         }
 
+        // right input
         if (OVRInput.GetDown(OVRInput.RawButton.RIndexTrigger))
         {
             this.rightPosZero = GetControllerPos(LR.RIGHT);
@@ -81,6 +83,10 @@ public class OculusController : MonoBehaviour
             this.rightPosZero = Vector3.zero;
             this.rightLevel = 0f;
         }
+
+        // level has to be in [-1, 1]
+        this.leftLevel = Mathf.Clamp(this.leftLevel, -1, 1);
+        this.rightLevel = Mathf.Clamp(this.rightLevel, -1, 1);
 
         if (leftLevel != 0f || rightLevel != 0f || stickR != Vector2.zero)
         {
@@ -114,15 +120,13 @@ public class OculusController : MonoBehaviour
         return Mathf.Max(Mathf.Abs(leftLevel), Mathf.Abs(rightLevel));
     }
 
-    void Vibrate() {
-        if (this.rightLevel != 0f)
-            OVRInput.SetControllerVibration(1, Mathf.Min(1f, Mathf.Abs(this.rightLevel)), OVRInput.Controller.RTouch);
-        else 
-            OVRInput.SetControllerVibration(1, 0, OVRInput.Controller.RTouch);
+    void Vibrate(float level, OVRInput.Controller controller) {
+        float absLevel = Mathf.Min(1, Mathf.Abs(level));
+        OVRInput.SetControllerVibration(1, absLevel, controller);
+    }
 
-        if (this.leftLevel != 0f)
-            OVRInput.SetControllerVibration(1, Mathf.Min(1f, Mathf.Abs(this.leftLevel)), OVRInput.Controller.LTouch);
-        else
-            OVRInput.SetControllerVibration(1, 0, OVRInput.Controller.LTouch);
+    void Vibrate() {
+        Vibrate(this.leftLevel, OVRInput.Controller.LTouch);
+        Vibrate(this.rightLevel, OVRInput.Controller.RTouch);
     }
 }

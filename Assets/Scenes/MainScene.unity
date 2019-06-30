@@ -629,11 +629,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Ping Pong:   True
-
-    Left Level:  0
-
-    Right Level: 0'
+  m_Text: SpecialUI
 --- !u!222 &1359563561
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -730,7 +726,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1359563559}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 321b1f39ff22b2349a3ced128cb1d735, type: 3}
+  m_Script: {fileID: 11500000, guid: 861db92c21018fe49bfb4aa28a72dfc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Text: {fileID: 1359563560}

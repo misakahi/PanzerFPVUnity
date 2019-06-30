@@ -79,7 +79,8 @@
 				float2 p2 = n * r2;
 
 				// 範囲外にある部分は黒塗り
-				if (!is_front && length(p2) >= fisheye_radius)
+				// if (!is_front && length(p2) >= fisheye_radius)
+				if (!is_front && length(p2) >= 1)  // 180度から外は無視する
 					return fixed4(0,0,0,1);
 
 				// 画像のuv座標への変換とテクスチャの取得

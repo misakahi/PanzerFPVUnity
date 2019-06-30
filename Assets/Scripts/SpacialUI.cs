@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StatusUI : MonoBehaviour
+public class SpacialUI : MonoBehaviour
 {
     private bool pingPong = false;
     private float leftLevel = 0f;
@@ -16,6 +16,7 @@ public class StatusUI : MonoBehaviour
     {
         EventBus.Instance.Subscribe(OnPingPong);
         EventBus.Instance.Subscribe(OnController);
+        this.Text.text = "";
     }
 
     void OnPingPong(bool pingPong) {
@@ -33,11 +34,12 @@ public class StatusUI : MonoBehaviour
         if(this.Text == null)
             return;
 
+        string connectionText = this.pingPong ? "connected" : "disconnected";
         string text = 
 $@"
-Ping Pong:   {this.pingPong}
-Left Level:  {this.leftLevel}
-Right Level: {this.rightLevel}
+Controller {connectionText}
+Drive (left):  {this.leftLevel}
+Drive (right): {this.rightLevel}
 ";
 
         this.Text.text = text;
