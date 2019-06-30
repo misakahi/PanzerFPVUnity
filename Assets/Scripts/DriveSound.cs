@@ -2,15 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Engine : MonoBehaviour
+public class DriveSound : MonoBehaviour
 {
-    AudioSource AudioSource;
+    AudioSource audioSource;
+    float volume0 = 0f;  // volume set by inspector
+
+    [Range(0, 1)]
+    public float MaxVolume = 1f;
 
     // Start is called before the first frame update
     void Start()
     {
-        this.AudioSource = GetComponent<AudioSource>();
-        this.AudioSource.volume = 0.5f;
+        this.audioSource = GetComponent<AudioSource>();
+        this.volume0 = this.audioSource.volume;
 
         EventBus.Instance.Subscribe(OnController);
     }
@@ -26,6 +30,6 @@ public class Engine : MonoBehaviour
         // in [0, 1]
         float level = Mathf.Max(Mathf.Abs(leftLevel), Mathf.Abs(rightLevel));   
 
-        this.AudioSource.volume = 0.5f + level / 2;
+        this.audioSource.volume = MaxVolume * (volume0 + (1-volume0) * level);
     }
 }
