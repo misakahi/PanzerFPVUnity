@@ -40,6 +40,11 @@ class PanzerCommandSender
         return new Channel(Host + ":" + Port, ChannelCredentials.Insecure);
     }
 
+    static public void RemoteControl(ControllerInput input)
+    {
+        PanzerCommandSender.RemoteControl(input.LeftLevel, input.RightLevel, input.TurretRot, input.TurretUpDown);
+    }
+
     static public void RemoteControl(float leftLevel, float rightLevel, float rotation, float updown)
     {
         var instance = PanzerCommandSender.getInstance();

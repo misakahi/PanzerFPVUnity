@@ -88,13 +88,15 @@ public class OculusController : MonoBehaviour
         this.leftLevel = Mathf.Clamp(this.leftLevel, -1, 1);
         this.rightLevel = Mathf.Clamp(this.rightLevel, -1, 1);
 
-        if (leftLevel != 0f || rightLevel != 0f || stickR != Vector2.zero)
+        ControllerInput input = new ControllerInput(this.leftLevel, this.rightLevel, stickR.x, stickR.y);
+
+        if (!input.IsZero())
         {
             SendCommandThrottle.Run(() =>
             {
                 try
                 {
-                    PanzerCommandSender.RemoteControl(leftLevel, rightLevel, 0, 0);
+                    PanzerCommandSender.RemoteControl(input);
                 }
                 catch (RpcException e)
                 {
@@ -106,9 +108,6 @@ public class OculusController : MonoBehaviour
         if (this.enableVibration) {
             Vibrate();
         }
-
-        // TODO: turrent
-        ControllerInput input = new ControllerInput(this.leftLevel, this.rightLevel, 0f, 0f);
 
         EventBus.Instance.NotifyController(input);
     }
