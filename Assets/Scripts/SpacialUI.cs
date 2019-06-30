@@ -8,6 +8,7 @@ public class SpacialUI : MonoBehaviour
     private bool pingPong = false;
     private float leftLevel = 0f;
     private float rightLevel = 0f;
+    private ControllerInput input;
 
     public Text Text;  // set by Instector
 
@@ -23,9 +24,10 @@ public class SpacialUI : MonoBehaviour
         this.pingPong = pingPong;
     }
 
-    void OnController(float leftLevel, float rightLevel) {
-        this.leftLevel = leftLevel;
-        this.rightLevel = rightLevel;
+    void OnController(ControllerInput input) {
+        this.leftLevel = input.LeftLevel;
+        this.rightLevel = input.RightLevel;
+        this.input = input;
     }
 
     // Update is called once per frame
@@ -35,12 +37,8 @@ public class SpacialUI : MonoBehaviour
             return;
 
         string connectionText = this.pingPong ? "connected" : "disconnected";
-        string text = 
-$@"
-Controller {connectionText}
-Drive (left):  {this.leftLevel}
-Drive (right): {this.rightLevel}
-";
+        string text = $@"Controller {connectionText}
+" + input.DisplayString();
 
         this.Text.text = text;
     }

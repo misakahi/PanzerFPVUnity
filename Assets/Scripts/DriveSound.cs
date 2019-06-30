@@ -25,11 +25,8 @@ public class DriveSound : MonoBehaviour
         
     }
 
-    void OnController(float leftLevel, float rightLevel)
+    void OnController(ControllerInput input)
     {
-        // in [0, 1]
-        float level = Mathf.Max(Mathf.Abs(leftLevel), Mathf.Abs(rightLevel));   
-
-        this.audioSource.volume = MaxVolume * (volume0 + (1-volume0) * level);
+        this.audioSource.volume = MaxVolume * (volume0 + (1-volume0) * input.LevelAbs());
     }
 }

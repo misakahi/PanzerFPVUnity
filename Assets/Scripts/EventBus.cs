@@ -29,14 +29,14 @@ public class EventBus {
     }
 
     // Controller
-    public delegate void OnController(float leftLevel, float rightLevel);
+    public delegate void OnController(ControllerInput input);
     event OnController _onController;
 
     public void Subscribe(OnController onController) {
         _onController += onController;
     }
 
-    public void NotifyController(float leftLevel, float rightLevel) {
-        if(_onController != null) _onController(leftLevel, rightLevel);
+    public void NotifyController(ControllerInput input) {
+        if(_onController != null) _onController(input);
     }
 }

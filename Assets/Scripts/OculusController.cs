@@ -101,13 +101,16 @@ public class OculusController : MonoBehaviour
                     // Debug.LogException(e);
                 }
             });
-
         }
 
         if (this.enableVibration) {
             Vibrate();
         }
-        EventBus.Instance.NotifyController(this.leftLevel, this.rightLevel);
+
+        // TODO: turrent
+        ControllerInput input = new ControllerInput(this.leftLevel, this.rightLevel, 0f, 0f);
+
+        EventBus.Instance.NotifyController(input);
     }
 
     Vector3 GetControllerPos(LR leftRight)
