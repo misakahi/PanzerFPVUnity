@@ -11,3 +11,4 @@
 
 * [エンジン音](http://www.orangefreesounds.com/tank-sound-effect/)
 * [キャタピラの音](https://commons.nicovideo.jp/material/nc140616)
+* [フォント Octin Stencil](https://www.dafont.com/octin-stencil-free.font)

@@ -43,13 +43,6 @@ public class OculusController : MonoBehaviour
         Vector2 stickL = OVRInput.Get(OVRInput.RawAxis2D.LThumbstick);
         Vector2 stickR = OVRInput.Get(OVRInput.RawAxis2D.RThumbstick);
 
-        // if (!stickL.Equals(Vector2.zero) || !stickR.Equals(Vector2.zero)) {
-        //     Debug.Log("stick L" + stickL);
-        //     Debug.Log("stick R" + stickR);
-        //     this.transform.position += new Vector3(stickR.x * 0.1f, stickR.y * 0.1f, 0);
-        //     PanzerAdaptor.remoteControll(stickL, stickR);
-        // }
-
         // left input
         if (OVRInput.GetDown(OVRInput.RawButton.LIndexTrigger))
         {
