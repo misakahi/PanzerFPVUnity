@@ -458,10 +458,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 936e29acdfc772f47ab17cbbdd7c883d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deltaLevelRatio: 3
+  DistToLevel: 3
+  MinLevelDelta: 0.05
   SendCommandInterval: 100
-  minLevelDelta: 0.05
-  enableVibration: 1
+  EnableVibration: 0
+  StickWithCameraDirection: 1
 --- !u!4 &437370272
 Transform:
   m_ObjectHideFlags: 0
@@ -766,7 +767,7 @@ MonoBehaviour:
     m_MaxSize: 200
     m_Alignment: 0
     m_AlignByGeometry: 0
-    m_RichText: 1
+    m_RichText: 0
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1

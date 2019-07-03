@@ -29,8 +29,11 @@ public class DriveInputProcessor
     public Vector3 GetLocalControllerPosition() {
         return OVRInput.GetLocalControllerPosition(ControllerType);
     }
-
     public float GetLevel() {
+        return GetLevel(Vector3.forward);
+    }
+
+    public float GetLevel(Vector3 direction) {
         var currentPos = GetLocalControllerPosition();
         if (OVRInput.GetDown(RawButton))
         {
@@ -41,7 +44,7 @@ public class DriveInputProcessor
         {
             // calculate level diff to the previous value
             Vector3 delta = currentPos - origin;
-            float tempLevel = delta.z * DistToLevel;
+            float tempLevel = Vector3.Dot(direction.normalized, delta) * DistToLevel;
             float levelDelta = Mathf.Abs(tempLevel - level);
 
             // update only when level delta is larger than threshold
