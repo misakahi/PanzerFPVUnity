@@ -16,6 +16,7 @@ public class OculusController : MonoBehaviour
 
     public int SendCommandInterval = 100;  // milliseconds
     public bool EnableVibration = false;
+    public bool StickWithCameraDirection = false;
 
     RunThrottle SendCommandThrottle;
     DriveInputProcessor leftInputProcessor;
@@ -35,10 +36,12 @@ public class OculusController : MonoBehaviour
         Vector2 stickL = OVRInput.Get(OVRInput.RawAxis2D.LThumbstick);
         Vector2 stickR = OVRInput.Get(OVRInput.RawAxis2D.RThumbstick);
 
-        float leftLevel  = leftInputProcessor.GetLevel();
-        float rightLevel = rightInputProcessor.GetLevel();
+        Vector3 direction = StickWithCameraDirection ? Camera.main.transform.forward : Vector3.forward;
+        float leftLevel  = leftInputProcessor.GetLevel(direction);
+        float rightLevel = rightInputProcessor.GetLevel(direction);
 
         ControllerInput input = new ControllerInput(leftLevel, rightLevel, stickR.x, stickR.y);
+
 
         if (!input.IsZero())
         {
