@@ -8,49 +8,49 @@ using Panzer;
 
 class PanzerCommandSender
 {
-    private static PanzerCommandSender instance = null;
+    private static PanzerCommandSender _instance = null;
 
     Channel channel;
     Panzer.Panzer.PanzerClient client;
 
-    static public PanzerCommandSender getInstance()
+    static public PanzerCommandSender GetInstance()
     {
-        if (instance == null)
-            instance = new PanzerCommandSender();
-        return instance;
+        if (_instance == null)
+            _instance = new PanzerCommandSender();
+        return _instance;
     }
 
     static public PanzerCommandSender withConnection(string host, int port)
     {
-        var instance = PanzerCommandSender.getInstance();
-        if (instance.channel != null)
-        {
-            instance.channel.ShutdownAsync();
-            instance.channel = getChannel(host, port);
-            instance.client = new Panzer.Panzer.PanzerClient(instance.channel);
-        }
+        var instance = GetInstance();
+        instance.Connect(host, port);
         return instance;
     }
 
     private PanzerCommandSender(string host = "localhost", int port = 50051)
     {
-        this.channel = getChannel(host, port);
-        this.client = new Panzer.Panzer.PanzerClient(channel);
+        this.Connect(host, port);
     }
 
-    static private Channel getChannel(String host, int port)
+    // Initialize channel and gRPC client
+    private void Connect(string host, int port)
     {
-        return new Channel(host + ":" + port, ChannelCredentials.Insecure);
+        if (this.channel != null)
+            this.channel.ShutdownAsync();
+
+        Debug.Log($@"Connecting gRPC client to {host}:{port}");
+        this.channel = new Channel(host + ":" + port, ChannelCredentials.Insecure);
+        this.client = new Panzer.Panzer.PanzerClient(this.channel);
     }
 
     static public void RemoteControl(ControllerInput input)
     {
-        PanzerCommandSender.RemoteControl(input.LeftLevel, input.RightLevel, input.TurretRot, input.TurretUpDown);
+        RemoteControl(input.LeftLevel, input.RightLevel, input.TurretRot, input.TurretUpDown);
     }
 
     static public void RemoteControl(float leftLevel, float rightLevel, float rotation, float updown)
     {
-        var instance = PanzerCommandSender.getInstance();
+        var instance = GetInstance();
         var controlRequest = new Panzer.ControlRequest
         {
             DriveRequest = new DriveRequest
@@ -83,7 +83,7 @@ class PanzerCommandSender
 
     public static String PingPong(String ping="")
     {
-        var instance = getInstance();
+        var instance = GetInstance();
         var Pong = instance.client.SendPing(new Panzer.Ping { Ping_ = ping });
         return Pong.Pong_;
     }
