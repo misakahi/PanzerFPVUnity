@@ -8,11 +8,10 @@ using Panzer;
 
 class PanzerCommandSender
 {
-    private string Host;
-    private int Port;
     private static PanzerCommandSender instance = null;
 
-    private bool isLocked = false;
+    Channel channel;
+    Panzer.Panzer.PanzerClient client;
 
     static public PanzerCommandSender getInstance()
     {
@@ -24,20 +23,24 @@ class PanzerCommandSender
     static public PanzerCommandSender withConnection(string host, int port)
     {
         var instance = PanzerCommandSender.getInstance();
-        instance.Host = host;
-        instance.Port = port;
+        if (instance.channel != null)
+        {
+            instance.channel.ShutdownAsync();
+            instance.channel = getChannel(host, port);
+            instance.client = new Panzer.Panzer.PanzerClient(instance.channel);
+        }
         return instance;
     }
 
     private PanzerCommandSender(string host = "localhost", int port = 50051)
     {
-        this.Host = host;
-        this.Port = port;
+        this.channel = getChannel(host, port);
+        this.client = new Panzer.Panzer.PanzerClient(channel);
     }
 
-    private Channel getChannel()
+    static private Channel getChannel(String host, int port)
     {
-        return new Channel(Host + ":" + Port, ChannelCredentials.Insecure);
+        return new Channel(host + ":" + port, ChannelCredentials.Insecure);
     }
 
     static public void RemoteControl(ControllerInput input)
@@ -48,7 +51,6 @@ class PanzerCommandSender
     static public void RemoteControl(float leftLevel, float rightLevel, float rotation, float updown)
     {
         var instance = PanzerCommandSender.getInstance();
-        var channel = instance.getChannel();
         var controlRequest = new Panzer.ControlRequest
         {
             DriveRequest = new DriveRequest
@@ -62,59 +64,12 @@ class PanzerCommandSender
                 Updown = updown
             }
         };
-        var client = new Panzer.Panzer.PanzerClient(channel);
-        client.Control(controlRequest);
-        channel.ShutdownAsync().Wait();
+        instance.client.Control(controlRequest);
     }
 
     static public async Task RemoteControlAsync(float leftLevel, float rightLevel, float rotation, float updown)
     {
         await Task.Run(() => RemoteControl(leftLevel, rightLevel, rotation, updown));
-    }
-
-    static public DriveRequest Stick2DriveRequest(Vector2 stick)
-    {
-        float leftLevel = 0;
-        float rightLevel = 0;
-
-        var s = stick.magnitude;
-        var n = stick.normalized;
-
-        // spin turn
-        if (-0.25 <= n.y && n.y < 0.15)
-        {
-            leftLevel = n.x > 0 ? 1 : -1;
-            rightLevel = leftLevel * (-1);
-        }
-        else
-        {
-            if (n.x >= 0 && n.y > 0)
-            {
-                leftLevel = 1;
-                rightLevel = n.y;
-            }
-            else if (n.x >= 0 && n.y < 0)
-            {
-                leftLevel = -1;
-                rightLevel = n.y;
-            }
-            else if (n.x < 0 && n.y > 0)
-            {
-                leftLevel = n.y;
-                rightLevel = 1;
-            }
-            else if (n.x < 0 && n.y < 0)
-            {
-                leftLevel = n.y;
-                rightLevel = -1;
-            }
-        }
-
-        return new DriveRequest
-        {
-            LeftLevel = leftLevel * s,
-            RightLevel = rightLevel * s,
-        };
     }
 
     static public MoveTurretRequest Stick2MoveTurretRequset(Vector2 stick)
@@ -129,12 +84,7 @@ class PanzerCommandSender
     public static String PingPong(String ping="")
     {
         var instance = getInstance();
-        var channel = instance.getChannel();
-        var client = new Panzer.Panzer.PanzerClient(channel);
-
-        var Pong = client.SendPing(new Panzer.Ping { Ping_ = ping });
-
-        channel.ShutdownAsync().Wait();
+        var Pong = instance.client.SendPing(new Panzer.Ping { Ping_ = ping });
         return Pong.Pong_;
     }
 
