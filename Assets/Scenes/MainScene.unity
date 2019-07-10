@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsConnected: 0
-  PingPongInterval: 990
+  PingPongInterval: 500
 --- !u!4 &88111922
 Transform:
   m_ObjectHideFlags: 0
