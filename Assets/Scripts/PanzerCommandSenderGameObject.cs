@@ -4,14 +4,15 @@ using UnityEngine;
 
 public class PanzerCommandSenderGameObject : MonoBehaviour
 {
-    public string host = "localhost";
-    public int port = 50051;
+    public string Host = "localhost";
+    public int Port = 50051;
+    public int ThrottleInterval = 100;
     private PanzerCommandSender panzerCommandSender;
 
     // Start is called before the first frame update
     void Start()
     {
-        this.panzerCommandSender = PanzerCommandSender.withConnection(host, port);
+        this.panzerCommandSender = PanzerCommandSender.withConnection(Host, Port, ThrottleInterval);
     }
 
     // Update is called once per frame

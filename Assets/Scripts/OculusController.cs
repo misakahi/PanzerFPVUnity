@@ -14,18 +14,15 @@ public class OculusController : MonoBehaviour
     public float DistToLevel = 3f;
     public float MinLevelDelta = 0.05f;
 
-    public int SendCommandInterval = 100;  // milliseconds
     public bool EnableVibration = false;
     public bool StickWithCameraDirection = false;
 
-    RunThrottle SendCommandThrottle;
     DriveInputProcessor leftInputProcessor;
     DriveInputProcessor rightInputProcessor;
 
     // Start is called before the first frame update
     void Start()
     {
-        this.SendCommandThrottle = new RunThrottle(SendCommandInterval);
         this.leftInputProcessor  = new DriveInputProcessor(Hand.LEFT, MinLevelDelta, DistToLevel);
         this.rightInputProcessor = new DriveInputProcessor(Hand.RIGHT, MinLevelDelta, DistToLevel);
     }
@@ -42,25 +39,10 @@ public class OculusController : MonoBehaviour
 
         ControllerInput input = new ControllerInput(leftLevel, rightLevel, stickR.x, stickR.y);
 
+        PanzerCommandSender.RemoteControlThrottle(input);
 
-        if (!input.IsZero())
-        {
-            SendCommandThrottle.Run(() =>
-            {
-                try
-                {
-                    PanzerCommandSender.RemoteControl(input);
-                }
-                catch (RpcException e)
-                {
-                    // Debug.LogException(e);
-                }
-            });
-        }
-
-        if (this.EnableVibration) {
+        if (this.EnableVibration)
             Vibrate(leftLevel, rightLevel);
-        }
 
         EventBus.Instance.NotifyController(input);
     }

@@ -10,8 +10,11 @@ class PanzerCommandSender
 {
     private static PanzerCommandSender _instance = null;
 
-    Channel channel;
-    Panzer.Panzer.PanzerClient client;
+    private Channel channel;
+    private Panzer.Panzer.PanzerClient client;
+    private RunThrottle sendCommandThrottle;
+    private ControllerInput prevSendInput = ControllerInput.Zero();
+
 
     static public PanzerCommandSender GetInstance()
     {
@@ -20,16 +23,18 @@ class PanzerCommandSender
         return _instance;
     }
 
-    static public PanzerCommandSender withConnection(string host, int port)
+    static public PanzerCommandSender withConnection(string host, int port, int interval = 100)
     {
         var instance = GetInstance();
         instance.Connect(host, port);
+        instance.sendCommandThrottle = new RunThrottle(interval);
         return instance;
     }
 
-    private PanzerCommandSender(string host = "localhost", int port = 50051)
+    private PanzerCommandSender(string host = "localhost", int port = 50051, int interval = 100)
     {
         this.Connect(host, port);
+        this.sendCommandThrottle = new RunThrottle(interval);
     }
 
     // Initialize channel and gRPC client
@@ -45,40 +50,48 @@ class PanzerCommandSender
 
     static public void RemoteControl(ControllerInput input)
     {
-        RemoteControl(input.LeftLevel, input.RightLevel, input.TurretRot, input.TurretUpDown);
-    }
-
-    static public void RemoteControl(float leftLevel, float rightLevel, float rotation, float updown)
-    {
         var instance = GetInstance();
         var controlRequest = new Panzer.ControlRequest
         {
             DriveRequest = new DriveRequest
             {
-                LeftLevel = leftLevel,
-                RightLevel = rightLevel
+                LeftLevel = input.LeftLevel,
+                RightLevel = input.RightLevel
             },
             MoveTurretRequest = new MoveTurretRequest
             {
-                Rotation = rotation,
-                Updown = updown
+                Rotation = input.TurretRot,
+                Updown = input.TurretUpDown
             }
         };
         instance.client.Control(controlRequest);
+
+        instance.prevSendInput = input;
     }
 
-    static public async Task RemoteControlAsync(float leftLevel, float rightLevel, float rotation, float updown)
+    static public async Task RemoteControlAsync(ControllerInput input)
     {
-        await Task.Run(() => RemoteControl(leftLevel, rightLevel, rotation, updown));
+        await Task.Run(() => RemoteControl(input));
     }
 
-    static public MoveTurretRequest Stick2MoveTurretRequset(Vector2 stick)
+    static public void RemoteControlThrottle(ControllerInput input)
     {
-        return new MoveTurretRequest
-        {
-            Rotation = stick.x,
-            Updown = Math.Abs(stick.y) < 0.2 ? 0 : stick.y,
-        };
+        var instance = GetInstance();
+
+        // sending consecutive zeros is meaningless.
+        if (instance.prevSendInput.IsZero() && input.IsZero()) return;
+
+        instance.sendCommandThrottle.Run(() =>
+            {
+                try
+                {
+                    PanzerCommandSender.RemoteControl(input);
+                }
+                catch (RpcException e)
+                {
+                    // Debug.LogException(e);
+                }
+            });
     }
 
     public static String PingPong(String ping="")

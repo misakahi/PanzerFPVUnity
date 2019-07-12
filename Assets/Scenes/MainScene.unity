@@ -460,7 +460,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DistToLevel: 3
   MinLevelDelta: 0.05
-  SendCommandInterval: 100
   EnableVibration: 0
   StickWithCameraDirection: 1
 --- !u!4 &437370272
@@ -632,8 +631,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68dde064161e374419b7cd9baf9c53a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  host: localhost
-  port: 50051
+  Host: localhost
+  Port: 50051
+  ThrottleInterval: 100
 --- !u!4 &842619741
 Transform:
   m_ObjectHideFlags: 0
