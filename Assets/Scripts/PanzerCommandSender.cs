@@ -8,133 +8,96 @@ using Panzer;
 
 class PanzerCommandSender
 {
-    private string Host;
-    private int Port;
-    private static PanzerCommandSender instance = null;
+    private static PanzerCommandSender _instance = null;
 
-    private bool isLocked = false;
+    private Channel channel;
+    private Panzer.Panzer.PanzerClient client;
+    private RunThrottle sendCommandThrottle;
+    private ControllerInput prevSendInput = ControllerInput.Zero();
 
-    static public PanzerCommandSender getInstance()
+
+    static public PanzerCommandSender GetInstance()
     {
-        if (instance == null)
-            instance = new PanzerCommandSender();
+        if (_instance == null)
+            _instance = new PanzerCommandSender();
+        return _instance;
+    }
+
+    static public PanzerCommandSender withConnection(string host, int port, int interval = 100)
+    {
+        var instance = GetInstance();
+        instance.Connect(host, port);
+        instance.sendCommandThrottle = new RunThrottle(interval);
         return instance;
     }
 
-    static public PanzerCommandSender withConnection(string host, int port)
+    private PanzerCommandSender(string host = "localhost", int port = 50051, int interval = 100)
     {
-        var instance = PanzerCommandSender.getInstance();
-        instance.Host = host;
-        instance.Port = port;
-        return instance;
+        this.Connect(host, port);
+        this.sendCommandThrottle = new RunThrottle(interval);
     }
 
-    private PanzerCommandSender(string host = "localhost", int port = 50051)
+    // Initialize channel and gRPC client
+    private void Connect(string host, int port)
     {
-        this.Host = host;
-        this.Port = port;
-    }
+        if (this.channel != null)
+            this.channel.ShutdownAsync();
 
-    private Channel getChannel()
-    {
-        return new Channel(Host + ":" + Port, ChannelCredentials.Insecure);
+        Debug.Log($@"Connecting gRPC client to {host}:{port}");
+        this.channel = new Channel(host + ":" + port, ChannelCredentials.Insecure);
+        this.client = new Panzer.Panzer.PanzerClient(this.channel);
     }
 
     static public void RemoteControl(ControllerInput input)
     {
-        PanzerCommandSender.RemoteControl(input.LeftLevel, input.RightLevel, input.TurretRot, input.TurretUpDown);
-    }
-
-    static public void RemoteControl(float leftLevel, float rightLevel, float rotation, float updown)
-    {
-        var instance = PanzerCommandSender.getInstance();
-        var channel = instance.getChannel();
+        var instance = GetInstance();
         var controlRequest = new Panzer.ControlRequest
         {
             DriveRequest = new DriveRequest
             {
-                LeftLevel = leftLevel,
-                RightLevel = rightLevel
+                LeftLevel = input.LeftLevel,
+                RightLevel = input.RightLevel
             },
             MoveTurretRequest = new MoveTurretRequest
             {
-                Rotation = rotation,
-                Updown = updown
+                Rotation = input.TurretRot,
+                Updown = input.TurretUpDown
             }
         };
-        var client = new Panzer.Panzer.PanzerClient(channel);
-        client.Control(controlRequest);
-        channel.ShutdownAsync().Wait();
+        instance.client.Control(controlRequest);
+
+        instance.prevSendInput = input;
     }
 
-    static public async Task RemoteControlAsync(float leftLevel, float rightLevel, float rotation, float updown)
+    static public async Task RemoteControlAsync(ControllerInput input)
     {
-        await Task.Run(() => RemoteControl(leftLevel, rightLevel, rotation, updown));
+        await Task.Run(() => RemoteControl(input));
     }
 
-    static public DriveRequest Stick2DriveRequest(Vector2 stick)
+    static public void RemoteControlThrottle(ControllerInput input)
     {
-        float leftLevel = 0;
-        float rightLevel = 0;
+        var instance = GetInstance();
 
-        var s = stick.magnitude;
-        var n = stick.normalized;
+        // sending consecutive zeros is meaningless.
+        if (instance.prevSendInput.IsZero() && input.IsZero()) return;
 
-        // spin turn
-        if (-0.25 <= n.y && n.y < 0.15)
-        {
-            leftLevel = n.x > 0 ? 1 : -1;
-            rightLevel = leftLevel * (-1);
-        }
-        else
-        {
-            if (n.x >= 0 && n.y > 0)
+        instance.sendCommandThrottle.Run(() =>
             {
-                leftLevel = 1;
-                rightLevel = n.y;
-            }
-            else if (n.x >= 0 && n.y < 0)
-            {
-                leftLevel = -1;
-                rightLevel = n.y;
-            }
-            else if (n.x < 0 && n.y > 0)
-            {
-                leftLevel = n.y;
-                rightLevel = 1;
-            }
-            else if (n.x < 0 && n.y < 0)
-            {
-                leftLevel = n.y;
-                rightLevel = -1;
-            }
-        }
-
-        return new DriveRequest
-        {
-            LeftLevel = leftLevel * s,
-            RightLevel = rightLevel * s,
-        };
-    }
-
-    static public MoveTurretRequest Stick2MoveTurretRequset(Vector2 stick)
-    {
-        return new MoveTurretRequest
-        {
-            Rotation = stick.x,
-            Updown = Math.Abs(stick.y) < 0.2 ? 0 : stick.y,
-        };
+                try
+                {
+                    PanzerCommandSender.RemoteControl(input);
+                }
+                catch (RpcException e)
+                {
+                    // Debug.LogException(e);
+                }
+            });
     }
 
     public static String PingPong(String ping="")
     {
-        var instance = getInstance();
-        var channel = instance.getChannel();
-        var client = new Panzer.Panzer.PanzerClient(channel);
-
-        var Pong = client.SendPing(new Panzer.Ping { Ping_ = ping });
-
-        channel.ShutdownAsync().Wait();
+        var instance = GetInstance();
+        var Pong = instance.client.SendPing(new Panzer.Ping { Ping_ = ping });
         return Pong.Pong_;
     }
 

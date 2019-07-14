@@ -34,4 +34,8 @@ Turret (updown): {this.TurretUpDown}
     public bool IsZero() {
         return LeftLevel == 0 && RightLevel == 0 && TurretRot == 0 && TurretUpDown == 0;
     }
+
+    static public ControllerInput Zero() {
+        return new ControllerInput(0, 0, 0, 0);
+    }
 }
