@@ -661,6 +661,7 @@ GameObject:
   - component: {fileID: 1311835625}
   - component: {fileID: 1311835624}
   - component: {fileID: 1311835623}
+  - component: {fileID: 1311835628}
   m_Layer: 0
   m_Name: OmnidirectionalScreen
   m_TagString: Untagged
@@ -680,7 +681,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bedcd74e030a54b7b940d243f4542abf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  serverUrl: http://raspberrypi.local:8080/?action=stream
+  serverUrl: 
   playAutomatically: 0
   showMovieFps: 1
   autoReconnect: 1
@@ -761,6 +762,19 @@ Transform:
   m_Father: {fileID: 1401554672}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1311835628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1311835622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a0aa34c5bd7c6e4cbec13844f0d116d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 1311835623}
 --- !u!1 &1359563559
 GameObject:
   m_ObjectHideFlags: 0

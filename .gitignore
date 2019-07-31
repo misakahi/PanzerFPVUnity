@@ -65,6 +65,8 @@ crashlytics-build.properties
 [Aa]ssets/Plugins/*
 [Aa]ssets/Oculus/*
 [Aa]ssets/MJStreamingPlayer/*
+[Aa]ssets/Advanced INI Parser/*
+[Aa]ssets/Advanced INI Parser.meta
 
 # VSCode
 .vscode

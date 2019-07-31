@@ -4,14 +4,20 @@ using UnityEngine;
 
 public class PanzerCommandSenderGameObject : MonoBehaviour
 {
-    public string Host = "localhost";
-    public int Port = 50051;
-    public int ThrottleInterval = 100;
+    public const string CONFIG_SECTION = "PanzerServer";
+
+    public string Host;
+    public int Port;
+    public int ThrottleInterval;
     private PanzerCommandSender panzerCommandSender;
 
     // Start is called before the first frame update
     void Start()
     {
+        Host = Config.ReadValue(CONFIG_SECTION, "Host", Host);
+        Port = int.Parse(Config.ReadValue(CONFIG_SECTION, "Port", Port.ToString()));
+        ThrottleInterval = int.Parse(Config.ReadValue(CONFIG_SECTION, "ThrottleInterval", ThrottleInterval.ToString()));
+
         this.panzerCommandSender = PanzerCommandSender.withConnection(Host, Port, ThrottleInterval);
     }
 

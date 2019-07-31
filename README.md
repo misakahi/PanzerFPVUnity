@@ -5,7 +5,7 @@
 * Motion JPEGで送られてくる魚眼画像を球面上へ投影→シェーダー [UnityVR220Shader](https://github.com/xeno14/UnityVR220Shader)
 * gRPCで命令を送信→ラジコン側のプログラム [panzerserver](https://github.com/misakahi/panzerserver)
 
-# Setup
+## Setup
 
 1. リポジトリをクローンする。
 2. 依存ライブラリをAssets以下にインストール
@@ -15,7 +15,7 @@
 3. 素材をAssets以下に配置
     1. Assets/Sounds ... [エンジン音](http://www.orangefreesounds.com/tank-sound-effect/), [キャタピラの音](https://commons.nicovideo.jp/material/nc140616)
     1. Assers/Fonts ... [Octin Stencil](https://www.dafont.com/octin-stencil-free.font)
-
+4. 設定ファイル`PanzerFPV.ini`をホームディレクトリに配置（通常ならばC:\Users\ログインユーザー名）し、中身を編集
 
 
 天球のデフォルトの画像[（C）Entaniya](http://products.entaniya.co.jp/)
